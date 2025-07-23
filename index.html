@@ -2,260 +2,194 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>VXcoin Hacker Dashboard</title>
+  <title>VXcoin Hacker Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+    }
     html, body {
-      height:100%;
-      margin:0;
-      font-family:'Press Start 2P', monospace;
-      background:#000;
-      color:#0f0;
-      overflow:hidden;
+      height: 100%;
+      background: #000;
+      font-family: 'Press Start 2P', monospace;
+      overflow: hidden;
+      color: #0f0;
     }
+    /* === BACKGROUND ANIMATION === */
     body::before {
-      content:"";
-      position:fixed;
-      top:0;left:0;
-      width:100%;height:100%;
-      background:url('https://i.imgur.com/7YJH2Cz.png') repeat; /* matrix-bg placeholder */
-      opacity:0.1;
-      z-index:0;
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        0deg, #001a00 0px, #001a00 2px,
+        #000 2px, #000 4px
+      );
+      z-index: 0;
+      opacity: 0.2;
+      animation: scan 10s linear infinite;
     }
+
+    @keyframes scan {
+      0% { background-position-y: 0; }
+      100% { background-position-y: 100vh; }
+    }
+
     .container {
-      position:relative;
-      z-index:1;
-      max-width:800px;
-      margin:0 auto;
-      padding:20px;
-      box-sizing:border-box;
-    }
-    h1 {
-      text-align:center;
-      font-size:28px;
-      animation:flicker 1s infinite;
-    }
-    @keyframes flicker {
-      0%,49%,100% {opacity:1;}
-      50%,99% {opacity:0.3;}
-    }
-    .stats-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:10px;
-      margin:20px 0;
-    }
-    .stat-box {
-      background:rgba(0,25,0,0.5);
-      border:2px solid #0f0;
-      padding:15px;
-      text-align:center;
-    }
-    .code-console {
-      background:#002200;
-      border:2px solid #0f0;
-      padding:10px;
-      height:150px;
-      overflow-y:auto;
-      font-size:12px;
-      line-height:14px;
-      white-space:pre;
-    }
-    .matrix-line {
-      color:#0a0;
-    }
-    .toolbar {
-      margin:20px 0;
-      display:flex;
-      gap:10px;
-    }
-    .toolbar button {
-      flex:1;
-      padding:10px;
-      background:transparent;
-      border:2px solid #0f0;
-      color:#0f0;
-      cursor:pointer;
-      animation:btnflicker 2s infinite;
-    }
-    @keyframes btnflicker {
-      0%,100% {box-shadow:0 0 5px #0f0;}
-      50% {box-shadow:0 0 15px #0f0;}
-    }
-    .btn-connect:hover {background:#0f0;color:#000;}
-    .tab-content {display:none;}
-    .tab-content.active{display:block;}
-    .tabs{display:flex;gap:5px;}
-    .tabs div {
-      flex:1;text-align:center;
-      padding:10px;border:2px solid #0f0;
-      background:#001600;cursor:pointer;
-    }
-    .tabs .active{background:#003200;}
-    #robot {
-      position:fixed;
-      bottom:0;left:0;
-      width:200px;
-      opacity:0.8;
-      animation:bob 3s infinite ease-in-out;
-      pointer-events:none;
-    }
-    @keyframes bob {
-      0%,100%{transform:translateY(0);}
-      50%{transform:translateY(-10px);}
-    }
-    .popup {
-      position:fixed;
-      top:50%;left:50%;
-      transform:translate(-50%,-50%);
-      background:#000;
-      border:2px solid #0f0;
-      padding:20px;
-      display:none;
-      z-index:2;
-    }
-    .popup.active{display:block;}
-    .popup input {background:#001600;color:#0f0;border:1px solid #0f0;padding:5px;width:200px;}
-    .popup button {margin-top:10px;}
-    .overlay {
-      position:fixed;top:0;left:0;
-      width:100%;height:100%;
-      background:rgba(0,0,0,0.7);
-      display:none;
-      z-index:1;
-    }
-    .overlay.active{display:block;}
-  </style>
-</head>
-<body>
-  <div class="overlay" id="overlay"></div>
-  <div class="popup" id="walletPopup">
-    <p>Connect your Telegram / Web3 wallet:</p>
-    <input type="text" placeholder="Paste wallet or bot link...">
-    <button id="walletOk">Connect</button>
-  </div>
-
-  <div class="container">
-    <h1>VXcoin Hacker Dashboard</h1>
-
-    <div class="stats-grid">
-      <div class="stat-box">🪙 Coins<br><span id="coins">0</span></div>
-      <div class="stat-box">💵 USD<br>$<span id="usd">0.00</span></div>
-      <div class="stat-box">🔗 Referrals<br><span id="refs">0</span></div>
-      <div class="stat-box">⏳ Days Left<br><span id="days">145</span></div>
-      <div class="stat-box">📈 Rate<br><span id="rate">0.00</span> $/day</div>
-      <div class="stat-box">⏱ Last Claim<br><span id="lastClaim">Never</span></div>
-    </div>
-
-    <div class="tabs">
-      <div class="active" data-tab="mainTab">Main</div>
-      <div data-tab="tasksTab">Tasks</div>
-      <div data-tab="codeTab">Console</div>
-    </div>
-
-    <div id="mainTab" class="tab-content active">
-      <div class="toolbar">
-        <button id="connectBtn" class="btn-connect">Connect Wallet</button>
-        <button id="claimBtn">Claim VXcoin</button>
-        <button id="refBtn">Copy Referral Link</button>
-      </div>
-      <p>Your referral link:</p>
-      <input type="text" id="refLink" readonly style="width:100%;padding:5px;background:#001600;color:#0f0;border:1px solid #0f0;">
-      <p>Price per coin ≈ $0.25</p>
-    </div>
-
-    <div id="tasksTab" class="tab-content">
-      <p><strong>Tasks to earn coins:</strong></p>
-      <ul>
-        <li>Subscribe to Telegram – 
-  <a href="https://t.me/+vWn1fZWIOL82NmMy">
-    <button class="taskBtn">Go</button>
-  </a>
-</li>
-
-        <li>Join Discord – <button class="taskBtn">Go</button></li>
-        <li>Follow on Twitter – <button class="taskBtn">Go</button></li>
-      </ul>
-    </div>
-
-    <div id="codeTab" class="tab-content">
-      <div class="code-console" id="console">
-        <div class="matrix-line">[INIT] VXcoin dashboard loaded...</div>
-      </div>
-    </div>
-  </div>
-
-  <img src="https://i.imgur.com/XLDX2jQ.png" alt="hacker robot" id="robot">
-
-  <script>
-    const coinsEl=document.getElementById('coins');
-    const usdEl=document.getElementById('usd');
-    const refsEl=document.getElementById('refs');
-    const daysEl=document.getElementById('days');
-    const rateEl=document.getElementById('rate');
-    const lastClaimEl=document.getElementById('lastClaim');
-    const refLinkEl=document.getElementById('refLink');
-    const consoleEl=document.getElementById('console');
-
-    let coins=0, refs=0, days=145;
-    const COIN_PRICE=0.25;
-
-    refLinkEl.value=window.location.href+'?ref=YOUR_ID';
-
-    document.querySelectorAll('.tabs div').forEach(tab=>{
-      tab.onclick=()=>{
-        document.querySelectorAll('.tabs div').forEach(t=>t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(tab.dataset.tab).classList.add('active');
-      };
-    });
-
-    function logConsole(msg) {
-      const el=document.createElement('div');
-      el.textContent='[LOG] '+msg;
-      el.className='matrix-line';
-      consoleEl.appendChild(el);
-      consoleEl.scrollTop=consoleEl.scrollHeight;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
     }
 
-    document.getElementById('connectBtn').onclick=()=>{
-      document.getElementById('overlay').classList.add('active');
-      document.getElementById('walletPopup').classList.add('active');
-    };
-    document.getElementById('walletOk').onclick=()=>{
-      document.getElementById('overlay').classList.remove('active');
-      document.getElementById('walletPopup').classList.remove('active');
-      logConsole('Wallet connected');
-      lastClaimEl.textContent=new Date().toLocaleTimeString();
-    };
-    document.getElementById('refBtn').onclick=()=>{
-      refLinkEl.select();
-      document.execCommand('copy');
-      logConsole('Referral link copied');
-    };
-    document.getElementById('claimBtn').onclick=()=>{
-      coins+=1;
-      refs+=1;
-      days = Math.max(0, days-0);
-      updateStats();
-      logConsole('Coin claimed (from ref or bot)');
-    };
-
-    function updateStats(){
-      coinsEl.textContent=coins;
-      refsEl.textContent=refs;
-      daysEl.textContent=days;
-      usdEl.textContent=(coins*COIN_PRICE).toFixed(2);
-      rateEl.textContent=(coins/days).toFixed(2);
+    /* === TIMER BAR === */
+    .timer {
+      width: 100%;
+      padding: 10px;
+      background: #100010;
+      color: #f00;
+      font-size: 12px;
+      text-align: center;
+      border-bottom: 2px solid #f00;
+      animation: pulseRed 1s infinite;
     }
 
-    setInterval(()=>{
-      if(Math.random()<0.2){ document.getElementById('claimBtn').click(); }
-    },5000);
+    @keyframes pulseRed {
+      0%, 100% { color: #f00; }
+      50% { color: #ff0; }
+    }
 
-    updateStats();
-    logConsole('System ready.');
-  </script>
-</body>
-</html>
+    /* === STATS PANEL === */
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .stat {
+      flex: 1 1 150px;
+      padding: 15px;
+      background: #001100;
+      border: 2px solid #0f0;
+      text-align: center;
+      color: #0f0;
+      animation: flickerGreen 2s infinite;
+    }
+
+    @keyframes flickerGreen {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .stat.red {
+      background: #220000;
+      border-color: #f00;
+      color: #f00;
+      animation: flickerRed 1.5s infinite;
+    }
+
+    .stat.blue {
+      background: #001122;
+      border-color: #0ff;
+      color: #0ff;
+      animation: flickerBlue 2s infinite;
+    }
+
+    @keyframes flickerRed {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    @keyframes flickerBlue {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* === ACTIONS === */
+    .actions {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .actions button {
+      background: #000;
+      border: 2px solid #0f0;
+      color: #0f0;
+      padding: 10px;
+      cursor: pointer;
+      flex: 1 1 150px;
+      transition: 0.2s;
+    }
+
+    .actions button:hover {
+      background: #0f0;
+      color: #000;
+      box-shadow: 0 0 10px #0f0;
+    }
+
+    /* === CONSOLE === */
+    .console {
+      flex: 1;
+      background: #000;
+      border: 2px solid #0f0;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 10px;
+      line-height: 14px;
+      margin-bottom: 20px;
+    }
+
+    .console-line {
+      color: #0f0;
+    }
+
+    /* === TASKS === */
+    .tasks {
+      background: #001a00;
+      border: 2px solid #0f0;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
+    .task {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 5px 0;
+    }
+
+    .task a {
+      background: #0ff;
+      color: #000;
+      padding: 5px 10px;
+      text-decoration: none;
+      border: 2px solid #0ff;
+      font-size: 10px;
+    }
+
+    /* === ROBOT IMAGE === */
+    .robot {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 220px;
+      opacity: 0.85;
+      z-index: 2;
+      animation: floatbot 4s infinite ease-in-out;
+    }
+
+    @keyframes floatbot {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  </
