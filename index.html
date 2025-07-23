@@ -4,153 +4,189 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>INFEX WebApp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
       margin: 0;
       padding: 0;
-      font-family: 'Courier New', monospace;
-      background: black;
-      color: #00ff88;
-      background-image: url('https://i.imgur.com/6eUNLkB.gif');
+    }
+    body {
+      background: url('https://i.imgur.com/dAXwOga.png') no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-    .container {
-      padding: 20px;
-      backdrop-filter: blur(8px);
-      background-color: rgba(0, 0, 0, 0.7);
-      max-width: 500px;
-      margin: 50px auto;
-      border: 2px solid #00ff88;
-      border-radius: 10px;
-    }
-    h1, h2, h3 {
       color: #00ff88;
-      text-align: center;
     }
-    .highlight {
-      font-size: 28px;
-      text-align: center;
+    .overlay {
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      width: 90%;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    .timer {
+      font-size: 36px;
+      margin: 20px 0;
+      font-weight: bold;
+      text-shadow: 0 0 10px #00ff88;
+    }
+    .input-block, .share-btn, .claim-block, .task-tab, .connect-wallet {
+      width: 90%;
+      max-width: 400px;
       margin: 10px 0;
-    }
-    .ref-link {
-      width: 100%;
-      padding: 10px;
-      background: black;
-      color: #00ff88;
-      border: 1px solid #00ff88;
-      border-radius: 5px;
-      margin-top: 10px;
       text-align: center;
-      word-break: break-all;
+    }
+    .input-field {
+      background: transparent;
+      border: 2px solid #00ff88;
+      padding: 10px;
+      width: 100%;
+      color: #00ff88;
+      border-radius: 8px;
+      font-size: 16px;
     }
     .button {
       background: #00ff88;
       color: black;
-      padding: 10px;
       border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
       width: 100%;
-      border-radius: 5px;
-      font-weight: bold;
-      margin-top: 10px;
       cursor: pointer;
+      box-shadow: 0 0 20px #00ff88;
     }
-    .info {
-      font-size: 14px;
+    .balance-display {
+      font-size: 48px;
       margin-top: 20px;
+      text-shadow: 0 0 10px #00ff88;
+    }
+    .usd-value {
+      font-size: 18px;
       color: #aaffcc;
-      text-align: center;
     }
-    .tab {
-      margin-top: 30px;
-      text-align: center;
-    }
-    .timer {
-      font-size: 20px;
+    .claim-btn {
       margin-top: 20px;
-      text-align: center;
     }
-    .question {
-      display: inline-block;
-      width: 25px;
-      height: 25px;
-      background: #00ff88;
-      color: black;
-      border-radius: 50%;
-      line-height: 25px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-left: 10px;
+    .robot-img {
+      margin-top: 30px;
+      width: 200px;
+    }
+    .bottom-tabs {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 10px 0;
+    }
+    .tab-btn {
+      color: #00ff88;
+      font-size: 20px;
+    }
+    .info-msg {
+      font-size: 16px;
+      margin-top: 10px;
+      color: #99ffcc;
+    }
+    .connect-wallet {
+      position: absolute;
+      top: 20px;
+      right: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>INFEX</h1>
-    <h3>INFX Coin ≈ $0.25</h3>
-
-    <div class="highlight">Infect a Friend</div>
-    <div class="ref-link" id="refLink">https://t.me/infexVX_bot?start=123456</div>
-
-    <div class="highlight">Infected: <span id="infectedCount">0</span></div>
-    <div class="highlight">INFX Balance: <span id="coinCount">0</span> ≈ $<span id="usdValue">0.00</span></div>
-
-    <div class="timer">
-      Drop in: <span id="timer">Loading...</span>
-      <span class="question" onclick="showInfo()">?</span>
+  <div class="overlay">
+    <div class="connect-wallet">
+      <button class="button">CONNECT WALLET</button>
     </div>
 
-    <button class="button" onclick="claimTokens()">Claim</button>
-
-    <div class="tab">
-      <button class="button" onclick="window.location.href='about.html'">About INFEX</button>
+    <div class="topbar">
+      <div>1 INFX ≈ 0.25$</div>
+      <div></div>
     </div>
 
-    <div class="info" id="infoBox" style="display:none">
-      This project runs for 145 days. Once the timer ends, you’ll be able to claim your earned INFX tokens.
+    <div class="timer" id="timer">Loading...</div>
+
+    <div class="input-block">
+      <input type="text" id="refLink" class="input-field" readonly value="https://t.me/infexVX_bot?start=yourid">
+    </div>
+    <div class="share-btn">
+      <button class="button" onclick="shareLink()">ПОДЕЛИТЬСЯ</button>
+    </div>
+
+    <div class="balance-display" id="tokenCount">0.00</div>
+    <div class="usd-value" id="usdValue">≈ $0.00</div>
+
+    <div class="claim-block">
+      <button class="button" onclick="claimTokens()">CLAIM</button>
+    </div>
+
+    <img src="https://i.imgur.com/jbMfY3F.png" alt="robot" class="robot-img">
+
+    <div class="bottom-tabs">
+      <div class="tab-btn" onclick="goHome()">🏠</div>
+      <div class="tab-btn" onclick="goTasks()">⭐</div>
     </div>
   </div>
 
   <script>
-    const infected = 4; // Replace with dynamic value
-    const coinPerInfect = 1;
-    const usdRate = 0.25;
-
-    document.getElementById("infectedCount").innerText = infected;
-    document.getElementById("coinCount").innerText = infected * coinPerInfect;
-    document.getElementById("usdValue").innerText = (infected * coinPerInfect * usdRate).toFixed(2);
-
     const endDate = new Date("2025-12-15T00:00:00Z");
+    const coinRate = 0.25;
+    let referrals = 0;
 
     function updateTimer() {
       const now = new Date();
       const diff = endDate - now;
-
       if (diff <= 0) {
-        document.getElementById("timer").innerText = "Drop is LIVE!";
+        document.getElementById("timer").innerText = "DROP IS LIVE!";
         return;
       }
-
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / 1000 / 60) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
-
-      document.getElementById("timer").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      document.getElementById("timer").innerText = `${days}:${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
     }
 
-    function showInfo() {
-      const box = document.getElementById("infoBox");
-      box.style.display = box.style.display === "none" ? "block" : "none";
+    function updateBalance() {
+      const coins = referrals;
+      document.getElementById("tokenCount").innerText = coins.toFixed(2);
+      document.getElementById("usdValue").innerText = `≈ $${(coins * coinRate).toFixed(2)}`;
+    }
+
+    function shareLink() {
+      navigator.clipboard.writeText(document.getElementById("refLink").value);
+      alert("Referral link copied to clipboard!");
     }
 
     function claimTokens() {
-      alert("Claim function coming soon.");
+      alert("Claim will be available after the drop.");
+    }
+
+    function goHome() {
+      alert("Already on Home tab.");
+    }
+
+    function goTasks() {
+      alert("No tasks available at the moment.");
     }
 
     updateTimer();
     setInterval(updateTimer, 1000);
+    updateBalance();
   </script>
 </body>
 </html>
