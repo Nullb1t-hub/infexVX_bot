@@ -3,257 +3,255 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>VXcoin Hacker Portal - Advanced</title>
+<title>VXcoin 8-bit Hacker Portal</title>
 <style>
-  /* ====== BASE ====== */
+  /* === FONT + RESET === */
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
   * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    margin: 0; padding: 0; box-sizing: border-box;
   }
   html, body {
     height: 100%;
     background: #000;
-    color: #0f0;
     font-family: 'Press Start 2P', monospace;
+    color: #0f0;
     overflow: hidden;
     user-select: none;
   }
 
-  /* ====== BACKGROUND ====== */
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(45deg, #003300 15%, #000 50%, #003366 85%);
-    opacity: 0.15;
-    z-index: 0;
-    animation: bgGlitch 20s linear infinite;
+  /* === BACKGROUND ANIMATION === */
+  body {
+    background: linear-gradient(270deg, #001100, #004400, #000011, #004466, #001100);
+    background-size: 1000% 1000%;
+    animation: bgShift 30s linear infinite;
+  }
+  @keyframes bgShift {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
   }
 
-  @keyframes bgGlitch {
-    0% {background-position: 0 0;}
-    50% {background-position: 100% 100%;}
-    100% {background-position: 0 0;}
-  }
-
-  /* ====== CONTAINER ====== */
+  /* === MAIN CONTAINER === */
   #app {
-    position: relative;
-    z-index: 10;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 15px 20px;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.85);
+    box-shadow: inset 0 0 40px #0f0;
   }
 
-  /* ====== HEADER / TIMER ====== */
+  /* === HEADER WITH TIMER === */
   header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #0f0;
-    position: relative;
+    border-bottom: 3px solid #0f0;
+    padding-bottom: 12px;
+    user-select: none;
   }
   header h1 {
-    font-size: 1.3rem;
-    letter-spacing: 2px;
-    color: #0f0;
-    text-shadow: 0 0 6px #0f0;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px #0f0;
   }
   #timer {
-    font-size: 0.85rem;
-    color: #0f0;
-    font-weight: bold;
-    user-select: none;
-    position: relative;
+    font-size: 1rem;
+    font-weight: 900;
+    color: #0ff;
+    text-shadow: 0 0 6px #0ff;
   }
 
-  /* Timer Progress Bar */
-  #timerProgressBar {
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #0f0, #0ff, #00f);
+  /* === PROGRESS BAR UNDER TIMER === */
+  #timerProgress {
+    width: 100%;
+    height: 6px;
+    background: #003300;
     border-radius: 3px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  #timerProgress > div {
+    height: 100%;
     width: 0%;
-    filter: drop-shadow(0 0 6px #0f0);
+    background: linear-gradient(90deg, #0f0, #0ff, #00f);
+    animation: none;
+    box-shadow: 0 0 10px #0f0, 0 0 15px #0ff;
+    border-radius: 3px;
+    transition: width 0.5s ease;
   }
 
-  /* ====== MAIN LAYOUT ====== */
+  /* === MAIN CONTENT AREA === */
   main {
     flex: 1;
     display: flex;
-    gap: 15px;
     margin-top: 20px;
+    gap: 18px;
     overflow: hidden;
   }
 
-  /* ====== LEFT PANEL ====== */
+  /* === LEFT PANEL (USER INFO + REFERRAL) === */
   #leftPanel {
-    flex: 0 0 320px;
-    background: #001a00;
-    border: 2px solid #0f0;
-    padding: 20px;
+    width: 340px;
+    background: #002200;
+    border: 3px solid #0f0;
+    padding: 18px;
+    box-shadow: 0 0 25px #0f0 inset;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    box-shadow: 0 0 10px #0f0 inset;
+    gap: 22px;
     position: relative;
   }
 
-  /* User info */
-  #userInfo {
-    border-bottom: 2px solid #0f0;
-    padding-bottom: 10px;
-  }
-  #userInfo h2 {
-    font-size: 1rem;
+  #userSection h2 {
+    font-size: 1.1rem;
     margin-bottom: 10px;
-  }
-  #userCoins {
-    font-size: 1.4rem;
     color: #0f0;
-    text-shadow: 0 0 8px #0f0;
-  }
-  #userUSD {
-    font-size: 0.8rem;
-    color: #0ff;
-    font-weight: bold;
-    margin-top: 4px;
+    text-shadow: 0 0 10px #0f0;
   }
 
-  /* Connect button */
-  #connectWalletBtn {
-    margin-top: 15px;
-    padding: 10px 15px;
-    background: transparent;
-    border: 2px solid #0f0;
+  #coinsCount {
+    font-size: 2.2rem;
+    font-weight: 900;
     color: #0f0;
+    text-shadow: 0 0 20px #0f0;
+  }
+  #coinsUSD {
+    font-size: 0.9rem;
+    margin-top: 4px;
+    color: #0ff;
     font-weight: bold;
+  }
+
+  /* === CONNECT WALLET BUTTON === */
+  #connectWalletBtn {
+    background: transparent;
+    border: 3px solid #0f0;
+    color: #0f0;
+    font-weight: 900;
+    padding: 12px;
+    margin-top: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
     user-select: none;
-    filter: drop-shadow(0 0 10px #0f0);
+    text-align: center;
+    letter-spacing: 2px;
+    transition: 0.3s;
+    box-shadow: 0 0 15px #0f0;
   }
   #connectWalletBtn:hover {
     background: #0f0;
     color: #000;
-    box-shadow: 0 0 10px #0f0;
+    box-shadow: 0 0 25px #0f0;
   }
 
-  /* Referral Link */
-  #referralSection {
-    margin-top: 20px;
-  }
-  #referralLabel {
-    font-size: 0.75rem;
-    margin-bottom: 6px;
-  }
-  #referralLink {
-    width: 100%;
-    padding: 6px 8px;
-    background: #000;
-    border: 1px solid #0f0;
-    color: #0f0;
-    font-size: 0.7rem;
-    letter-spacing: 1px;
+  /* === REFERRAL LINK BLOCK === */
+  #referralBlock {
+    margin-top: 22px;
     user-select: all;
-    cursor: pointer;
-    transition: background 0.3s ease;
   }
-  #referralLink:hover {
-    background: #0f0;
-    color: #000;
+  #referralBlock label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #0f0;
+    margin-bottom: 6px;
+    display: block;
+    text-shadow: 0 0 8px #0f0;
   }
-
-  /* Copy button */
+  #referralInput {
+    width: 100%;
+    padding: 8px 12px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    background: #000;
+    border: 2px solid #0f0;
+    color: #0f0;
+    border-radius: 4px;
+    box-shadow: inset 0 0 6px #0f0;
+    user-select: all;
+  }
   #copyReferralBtn {
-    margin-top: 6px;
-    padding: 8px 0;
+    margin-top: 8px;
+    padding: 10px 0;
     background: transparent;
     border: 2px solid #0ff;
     color: #0ff;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
-    width: 100%;
     user-select: none;
-    filter: drop-shadow(0 0 6px #0ff);
-    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 0 12px #0ff;
+    transition: 0.3s;
   }
   #copyReferralBtn:hover {
     background: #0ff;
     color: #000;
-    box-shadow: 0 0 10px #0ff;
+    box-shadow: 0 0 20px #0ff;
   }
 
-  /* Stats Boxes */
+  /* === STATS BOXES === */
   .statBox {
-    background: #001a00;
+    background: #003300;
     border: 2px solid #0f0;
-    padding: 15px 12px;
-    font-size: 0.85rem;
-    box-shadow: 0 0 8px #0f0 inset;
+    padding: 14px;
+    font-size: 0.9rem;
     text-align: center;
+    box-shadow: inset 0 0 10px #0f0;
     user-select: none;
+    font-weight: 700;
   }
   .statBox.red {
     border-color: #f00;
     color: #f00;
-    box-shadow: 0 0 12px #f00 inset;
+    box-shadow: inset 0 0 14px #f00;
   }
   .statBox.blue {
     border-color: #0ff;
     color: #0ff;
-    box-shadow: 0 0 12px #0ff inset;
+    box-shadow: inset 0 0 14px #0ff;
   }
 
-  /* ====== RIGHT PANEL ====== */
+  /* === RIGHT PANEL (TABS) === */
   #rightPanel {
     flex: 1;
+    background: #001a00;
+    border: 3px solid #0f0;
+    box-shadow: inset 0 0 30px #0f0;
+    padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    background: #001a00;
-    border: 2px solid #0f0;
-    padding: 20px;
-    box-shadow: 0 0 15px #0f0 inset;
-    overflow-y: auto;
   }
 
-  /* Tabs navigation */
+  /* Tabs nav */
   #tabsNav {
     display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 18px;
+    margin-bottom: 18px;
   }
-  .tabBtn {
+  .tabButton {
     flex: 1;
+    border: 3px solid #0f0;
     background: transparent;
-    border: 2px solid #0f0;
     color: #0f0;
-    font-weight: bold;
-    cursor: pointer;
-    padding: 10px 0;
+    font-weight: 900;
     text-align: center;
+    padding: 12px 0;
+    cursor: pointer;
     user-select: none;
-    transition: background 0.3s ease;
+    transition: 0.3s;
+    letter-spacing: 2px;
+    box-shadow: 0 0 15px #0f0;
   }
-  .tabBtn:hover {
+  .tabButton:hover:not(.active) {
     background: #0f0;
     color: #000;
+    box-shadow: 0 0 25px #0f0;
   }
-  .tabBtn.active {
+  .tabButton.active {
     background: #0f0;
     color: #000;
-    box-shadow: 0 0 12px #0f0;
     cursor: default;
+    box-shadow: 0 0 30px #0f0 inset;
   }
 
   /* Tab content */
@@ -261,120 +259,198 @@
     flex: 1;
     background: #000;
     border: 2px solid #0f0;
-    padding: 12px;
+    color: #0f0;
+    padding: 14px;
     overflow-y: auto;
     font-size: 11px;
-    line-height: 1.3em;
-    color: #0f0;
-    box-shadow: 0 0 10px #0f0 inset;
+    letter-spacing: 1px;
+    box-shadow: inset 0 0 12px #0f0;
+    user-select: none;
   }
 
-  /* Tasks */
+  /* === TASKS LIST === */
   #tasksList {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
   }
   .taskItem {
     background: #002200;
-    border: 2px solid #0f0;
-    padding: 10px;
+    border: 3px solid #0f0;
+    padding: 14px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     user-select: none;
-    transition: background 0.3s ease;
+    transition: background 0.3s;
+    box-shadow: inset 0 0 12px #0f0;
   }
   .taskItem.red {
     border-color: #f00;
     background: #220000;
     color: #f00;
+    box-shadow: inset 0 0 16px #f00;
   }
   .taskItem.blue {
     border-color: #0ff;
     background: #002233;
     color: #0ff;
+    box-shadow: inset 0 0 16px #0ff;
   }
-  .taskItem button, .taskItem a {
+  .taskItem button {
     cursor: pointer;
-    padding: 6px 10px;
-    border: 2px solid currentColor;
     background: transparent;
-    font-weight: bold;
-    transition: background 0.2s ease;
-    text-decoration: none;
+    border: 3px solid currentColor;
     color: inherit;
+    font-weight: 900;
+    padding: 8px 16px;
+    letter-spacing: 2px;
+    transition: background 0.2s ease;
+    user-select: none;
   }
-  .taskItem button:hover, .taskItem a:hover {
+  .taskItem button:hover {
     background: currentColor;
     color: #000;
   }
 
-  /* Console log */
+  /* === CONSOLE LOG === */
   #consoleLog {
-    height: 200px;
+    font-family: monospace;
+    font-size: 10px;
+    height: 180px;
     background: #000;
     border: 2px solid #0f0;
     padding: 10px;
     overflow-y: auto;
-    font-size: 9px;
-    line-height: 1.2em;
+    box-shadow: inset 0 0 12px #0f0;
     color: #0f0;
-    box-shadow: 0 0 8px #0f0 inset;
+    white-space: pre-wrap;
     user-select: none;
   }
-  #consoleLog .logLine {
-    margin-bottom: 3px;
-  }
 
-  /* Buttons in actions panel */
+  /* === ACTIONS PANEL === */
   #actionsPanel {
+    margin-top: 18px;
     display: flex;
-    gap: 12px;
-    justify-content: space-around;
-    margin-top: 10px;
+    gap: 14px;
   }
   #actionsPanel button {
     flex: 1;
+    padding: 14px;
+    border: 3px solid #0f0;
     background: transparent;
-    border: 2px solid #0f0;
     color: #0f0;
-    padding: 10px;
-    font-weight: bold;
+    font-weight: 900;
+    letter-spacing: 2px;
     cursor: pointer;
     user-select: none;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 0 5px #0f0);
+    box-shadow: 0 0 15px #0f0;
+    transition: 0.3s;
   }
   #actionsPanel button:hover {
     background: #0f0;
     color: #000;
-    box-shadow: 0 0 10px #0f0;
+    box-shadow: 0 0 25px #0f0;
   }
 
-  /* ROBOT IMAGE */
-  #robot {
+  /* === PIXEL ROBOT (SVG) === */
+  #robotContainer {
     position: fixed;
-    bottom: 0;
-    left: 10px;
-    width: 220px;
-    opacity: 0.8;
-    z-index: 5;
-    filter: drop-shadow(0 0 10px #0f0);
-    animation: floatBot 4s ease-in-out infinite;
+    bottom: 8px;
+    left: 8px;
+    width: 180px;
+    opacity: 0.75;
+    filter: drop-shadow(0 0 15px #0f0);
+    animation: robotFloat 5s ease-in-out infinite;
     user-select: none;
+    z-index: 5;
   }
-  @keyframes floatBot {
+  @keyframes robotFloat {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-12px); }
   }
 
-  /* GLITCH text effect */
-  .glitch {
-    position: relative;
+  /* === MODAL === */
+  #modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+  }
+  #modal {
+    background: #001a00;
+    border: 3px solid #0f0;
+    padding: 30px 40px;
+    box-shadow: 0 0 25px #0f0;
+    text-align: center;
+    max-width: 350px;
+  }
+  #modal h3 {
+    margin-bottom: 18px;
     color: #0f0;
     font-weight: 900;
     letter-spacing: 2px;
-    animation: glitchAnim 2s infinite;
   }
-  .glitch::before, .glitch::
+  #modal button {
+    background: transparent;
+    border: 3px solid #0f0;
+    padding: 12px 28px;
+    color: #0f0;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.3s;
+    box-shadow: 0 0 15px #0f0;
+  }
+  #modal button:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 30px #0f0;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>VXcoin Portal</h1>
+    <div id="timer" aria-live="polite">Loading timer...</div>
+  </header>
+  <div id="timerProgress"><div></div></div>
+
+  <main>
+    <!-- LEFT PANEL -->
+    <section id="leftPanel" aria-label="User Information and Referral">
+      <div id="userSection">
+        <h2>Your VXcoin Balance</h2>
+        <div id="coinsCount" aria-live="polite">0 VX</div>
+        <div id="coinsUSD">$0.00</div>
+        <button id="connectWalletBtn" aria-label="Connect Wallet">CONNECT WALLET</button>
+      </div>
+
+      <div id="referralBlock">
+        <label for="referralInput">Your Referral Link (Copy & Share)</label>
+        <input type="text" id="referralInput" readonly value="https://yourapp.com/referral/USERID123" aria-label="Referral Link" />
+        <button id="copyReferralBtn">COPY LINK</button>
+      </div>
+
+      <div class="statBox" id="invitedCountBox">
+        Invited Users: <span id="invitedCount">0</span>
+      </div>
+      <div class="statBox blue" id="claimableBox">
+        Claimable Coins: <span id="claimableCoins">0</span>
+      </div>
+      <div class="statBox red" id="daysLeftBox">
+        Days Left: <span id="daysLeft">145</span>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL -->
+    <section id="rightPanel" aria-label="Main Content">
+      <nav id="tabsNav" role="tablist" aria-label="Main tabs">
+        <button class="tabButton active" role="tab" aria-selected="true" aria-controls="tasksTab" id="tasksTabBtn">TASKS</button>
+        <button class="tabButton" role="tab" aria-selected="false" aria-controls="infoTab" id="infoTabBtn">INFO</button>
+        <button class="tab
