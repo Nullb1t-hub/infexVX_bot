@@ -6,190 +6,137 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-    * {
-      margin: 0; padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
-      height: 100%;
-      background: #000;
-      font-family: 'Press Start 2P', monospace;
-      overflow: hidden;
-      color: #0f0;
-    }
-    /* === BACKGROUND ANIMATION === */
-    body::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: repeating-linear-gradient(
-        0deg, #001a00 0px, #001a00 2px,
-        #000 2px, #000 4px
-      );
-      z-index: 0;
-      opacity: 0.2;
-      animation: scan 10s linear infinite;
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;background:#000;font-family:'Press Start 2P',monospace;color:#0f0;overflow:hidden;}
+    body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;
+      background:url('https://i.imgur.com/7YJH2Cz.png') center/cover no-repeat;
+      opacity:0.1;z-index:0;}
+
+    .container{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;padding:20px;}
+
+    /* TIMER */
+    .timer-bar{width:100%;padding:8px;background:#100; color:#f00; text-align:center;
+      animation: blink 1s infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.6;}}
+
+    /* STATS GRID */
+    .stats{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0;}
+    .stat{flex:1 1 120px;padding:10px;background:#001100;border:2px solid #0f0;text-align:center;
+      animation: glow 2s infinite;}
+    .stat.red{background:#220000;border-color:#f00;color:#f00;}
+    .stat.blue{background:#000022;border-color:#0ff;color:#0ff;}
+    @keyframes glow{0%,100%{box-shadow:0 0 5px;}50%{box-shadow:0 0 15px #0f0;}}
+
+    /* ACTION BUTTONS */
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;}
+    .actions button{flex:1 1 140px;padding:10px;background:#000;border:2px solid #0f0;
+      color:#0f0;cursor:pointer;transition:0.2s;}
+    .actions button:hover{background:#0f0;color:#000;box-shadow:0 0 8px #0f0;}
+
+    /* CONSOLE */
+    .console{flex:1;background:#000;border:2px solid #0f0;padding:10px;overflow-y:auto;
+      font-size:10px;line-height:14px;margin-bottom:15px;}
+    .console-line{color:#0f0;margin-bottom:2px;}
+
+    /* TASKS */
+    .tasks{background:#001a00;border:2px solid #0f0;padding:10px;margin-bottom:15px;}
+    .task{display:flex;justify-content:space-between;align-items:center;margin:5px 0;}
+    .task a{background:#0ff;color:#000;padding:5px 8px;text-decoration:none;border:2px solid #0ff;
+      font-size:10px;transition:0.2s;}
+    .task a:hover{background:#000;color:#0ff;}
+
+    /* ROBOT */
+    .robot{position:fixed;bottom:0;left:0;width:200px;opacity:0.9;z-index:2;
+      animation: float 3s ease-in-out infinite;}
+    @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="timer-bar" id="timer">Time left: 145d 00h 00m 00s</div>
+    <div class="stats">
+      <div class="stat">🪙 Coins<br><span id="coins">0</span></div>
+      <div class="stat">💵 USD<br>$<span id="usd">0.00</span></div>
+      <div class="stat red">🔗 Refs<br><span id="refs">0</span></div>
+      <div class="stat blue">📈 Rate<br><span id="rate">0.00</span></div>
+    </div>
+    <div class="actions">
+      <button id="connectBtn">Connect Wallet</button>
+      <button id="claimBtn">Claim 1 VXcoin</button>
+      <button id="copyLinkBtn">Copy Ref Link</button>
+    </div>
+    <div class="tasks">
+      <div class="task">
+        <span>Subscribe Telegram Channel</span>
+        <a href="https://t.me/+vWn1fZWIOL82NmMy" target="_blank" class="taskBtn">Go</a>
+      </div>
+      <div class="task">
+        <span>Invite Friends</span>
+        <button id="inviteBtn" class="taskBtn">Invite</button>
+      </div>
+    </div>
+    <div class="console" id="console"></div>
+  </div>
+  <img src="https://i.imgur.com/XLDX2jQ.png" alt="robot" class="robot">
+
+  <script>
+    const coinsEl = document.getElementById('coins'),
+          usdEl = document.getElementById('usd'),
+          refsEl = document.getElementById('refs'),
+          rateEl = document.getElementById('rate'),
+          timerEl = document.getElementById('timer'),
+          consoleEl = document.getElementById('console'),
+          copyBtn = document.getElementById('copyLinkBtn'),
+          claimBtn = document.getElementById('claimBtn'),
+          connectBtn = document.getElementById('connectBtn'),
+          inviteBtn = document.getElementById('inviteBtn');
+
+    let coins=0, refs=0;
+    let endTime = Date.now() + 145*24*3600*1000;
+    const COIN_PRICE = 0.25;
+
+    const refLink = window.location.href + '?ref=YOUR_ID';
+
+    function log(msg){
+      const d = new Date().toLocaleTimeString();
+      consoleEl.innerHTML += `<div class="console-line">[${d}] ${msg}</div>`;
+      consoleEl.scrollTop = consoleEl.scrollHeight;
     }
 
-    @keyframes scan {
-      0% { background-position-y: 0; }
-      100% { background-position-y: 100vh; }
+    function updateStats(){
+      usdEl.textContent = (coins*COIN_PRICE).toFixed(2);
+      rateEl.textContent = (coins/145).toFixed(2);
+      coinsEl.textContent = coins;
+      refsEl.textContent = refs;
     }
 
-    .container {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
+    function updateTimer(){
+      let diff = endTime - Date.now();
+      if(diff<0) diff=0;
+      const d = Math.floor(diff/864e5),
+            h = Math.floor(diff%864e5/3600000),
+            m = Math.floor(diff%3600000/60000),
+            s = Math.floor(diff%60000/1000);
+      timerEl.textContent = `Time left: ${d}d ${h}h ${m}m ${s}s`;
+      requestAnimationFrame(updateTimer);
     }
 
-    /* === TIMER BAR === */
-    .timer {
-      width: 100%;
-      padding: 10px;
-      background: #100010;
-      color: #f00;
-      font-size: 12px;
-      text-align: center;
-      border-bottom: 2px solid #f00;
-      animation: pulseRed 1s infinite;
-    }
+    connectBtn.onclick = () => log('Wallet connect flow here...');
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(refLink);
+      log('Referral link copied!');
+    };
+    claimBtn.onclick = () => {
+      coins++; refs++; updateStats(); log('1 VXcoin claimed');
+    };
+    inviteBtn.onclick = () => {
+      window.open(refLink, '_blank');
+      log('Invite link opened');
+    };
 
-    @keyframes pulseRed {
-      0%, 100% { color: #f00; }
-      50% { color: #ff0; }
-    }
-
-    /* === STATS PANEL === */
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      margin: 20px 0;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .stat {
-      flex: 1 1 150px;
-      padding: 15px;
-      background: #001100;
-      border: 2px solid #0f0;
-      text-align: center;
-      color: #0f0;
-      animation: flickerGreen 2s infinite;
-    }
-
-    @keyframes flickerGreen {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-
-    .stat.red {
-      background: #220000;
-      border-color: #f00;
-      color: #f00;
-      animation: flickerRed 1.5s infinite;
-    }
-
-    .stat.blue {
-      background: #001122;
-      border-color: #0ff;
-      color: #0ff;
-      animation: flickerBlue 2s infinite;
-    }
-
-    @keyframes flickerRed {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-
-    @keyframes flickerBlue {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    /* === ACTIONS === */
-    .actions {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .actions button {
-      background: #000;
-      border: 2px solid #0f0;
-      color: #0f0;
-      padding: 10px;
-      cursor: pointer;
-      flex: 1 1 150px;
-      transition: 0.2s;
-    }
-
-    .actions button:hover {
-      background: #0f0;
-      color: #000;
-      box-shadow: 0 0 10px #0f0;
-    }
-
-    /* === CONSOLE === */
-    .console {
-      flex: 1;
-      background: #000;
-      border: 2px solid #0f0;
-      padding: 10px;
-      overflow-y: auto;
-      font-size: 10px;
-      line-height: 14px;
-      margin-bottom: 20px;
-    }
-
-    .console-line {
-      color: #0f0;
-    }
-
-    /* === TASKS === */
-    .tasks {
-      background: #001a00;
-      border: 2px solid #0f0;
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-
-    .task {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 5px 0;
-    }
-
-    .task a {
-      background: #0ff;
-      color: #000;
-      padding: 5px 10px;
-      text-decoration: none;
-      border: 2px solid #0ff;
-      font-size: 10px;
-    }
-
-    /* === ROBOT IMAGE === */
-    .robot {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 220px;
-      opacity: 0.85;
-      z-index: 2;
-      animation: floatbot 4s infinite ease-in-out;
-    }
-
-    @keyframes floatbot {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-  </
+    updateStats();
+    updateTimer();
+    log('Dashboard ready');
+  </script>
+</body>
+</html>
