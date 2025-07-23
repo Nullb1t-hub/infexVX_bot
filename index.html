@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INFEX WebApp</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background: black;
+      color: #00ff88;
+      background-image: url('https://i.imgur.com/6eUNLkB.gif');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .container {
+      padding: 20px;
+      backdrop-filter: blur(8px);
+      background-color: rgba(0, 0, 0, 0.7);
+      max-width: 500px;
+      margin: 50px auto;
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+    }
+    h1, h2, h3 {
+      color: #00ff88;
+      text-align: center;
+    }
+    .highlight {
+      font-size: 28px;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .ref-link {
+      width: 100%;
+      padding: 10px;
+      background: black;
+      color: #00ff88;
+      border: 1px solid #00ff88;
+      border-radius: 5px;
+      margin-top: 10px;
+      text-align: center;
+      word-break: break-all;
+    }
+    .button {
+      background: #00ff88;
+      color: black;
+      padding: 10px;
+      border: none;
+      width: 100%;
+      border-radius: 5px;
+      font-weight: bold;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .info {
+      font-size: 14px;
+      margin-top: 20px;
+      color: #aaffcc;
+      text-align: center;
+    }
+    .tab {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .timer {
+      font-size: 20px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .question {
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      background: #00ff88;
+      color: black;
+      border-radius: 50%;
+      line-height: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>INFEX</h1>
+    <h3>INFX Coin ≈ $0.25</h3>
+
+    <div class="highlight">Infect a Friend</div>
+    <div class="ref-link" id="refLink">https://t.me/infexVX_bot?start=123456</div>
+
+    <div class="highlight">Infected: <span id="infectedCount">0</span></div>
+    <div class="highlight">INFX Balance: <span id="coinCount">0</span> ≈ $<span id="usdValue">0.00</span></div>
+
+    <div class="timer">
+      Drop in: <span id="timer">Loading...</span>
+      <span class="question" onclick="showInfo()">?</span>
+    </div>
+
+    <button class="button" onclick="claimTokens()">Claim</button>
+
+    <div class="tab">
+      <button class="button" onclick="window.location.href='about.html'">About INFEX</button>
+    </div>
+
+    <div class="info" id="infoBox" style="display:none">
+      This project runs for 145 days. Once the timer ends, you’ll be able to claim your earned INFX tokens.
+    </div>
+  </div>
+
+  <script>
+    const infected = 4; // Replace with dynamic value
+    const coinPerInfect = 1;
+    const usdRate = 0.25;
+
+    document.getElementById("infectedCount").innerText = infected;
+    document.getElementById("coinCount").innerText = infected * coinPerInfect;
+    document.getElementById("usdValue").innerText = (infected * coinPerInfect * usdRate).toFixed(2);
+
+    const endDate = new Date("2025-12-15T00:00:00Z");
+
+    function updateTimer() {
+      const now = new Date();
+      const diff = endDate - now;
+
+      if (diff <= 0) {
+        document.getElementById("timer").innerText = "Drop is LIVE!";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      document.getElementById("timer").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    function showInfo() {
+      const box = document.getElementById("infoBox");
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    }
+
+    function claimTokens() {
+      alert("Claim function coming soon.");
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>
