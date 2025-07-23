@@ -4,193 +4,253 @@
   <meta charset="UTF-8">
   <title>VXcoin Hacker Dashboard</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      color: #0f0;
-      font-family: 'Press Start 2P', monospace;
-      overflow: hidden;
-    }
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
+    html, body {
+      height:100%;
+      margin:0;
+      font-family:'Press Start 2P', monospace;
+      background:#000;
+      color:#0f0;
+      overflow:hidden;
+    }
+    body::before {
+      content:"";
+      position:fixed;
+      top:0;left:0;
+      width:100%;height:100%;
+      background:url('https://i.imgur.com/7YJH2Cz.png') repeat; /* matrix-bg placeholder */
+      opacity:0.1;
+      z-index:0;
+    }
     .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      max-width: 600px;
-      margin: 0 auto;
+      position:relative;
+      z-index:1;
+      max-width:800px;
+      margin:0 auto;
+      padding:20px;
+      box-sizing:border-box;
     }
     h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      animation: flicker 1s infinite;
+      text-align:center;
+      font-size:28px;
+      animation:flicker 1s infinite;
     }
     @keyframes flicker {
-      0%, 49%, 100% { opacity: 1; }
-      50%, 99% { opacity: 0.3; }
+      0%,49%,100% {opacity:1;}
+      50%,99% {opacity:0.3;}
     }
-
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      margin: 10px 0;
+    .stats-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+      margin:20px 0;
     }
-    .box {
-      border: 2px solid #0f0;
-      padding: 10px;
-      width: 45%;
-      text-align: center;
-      background: rgba(0,150,0,0.1);
+    .stat-box {
+      background:rgba(0,25,0,0.5);
+      border:2px solid #0f0;
+      padding:15px;
+      text-align:center;
     }
-    button {
-      margin: 5px;
-      padding: 10px 20px;
-      background: transparent;
-      color: #0f0;
-      border: 2px solid #0f0;
-      cursor: pointer;
-      font-size: 12px;
+    .code-console {
+      background:#002200;
+      border:2px solid #0f0;
+      padding:10px;
+      height:150px;
+      overflow-y:auto;
+      font-size:12px;
+      line-height:14px;
+      white-space:pre;
     }
-    button:hover {
-      background: #0f0;
-      color: #000;
-      animation: pulse 1s infinite alternate;
+    .matrix-line {
+      color:#0a0;
     }
-    @keyframes pulse {
-      from { box-shadow: 0 0 10px #0f0; }
-      to { box-shadow: 0 0 20px #0f0; }
+    .toolbar {
+      margin:20px 0;
+      display:flex;
+      gap:10px;
     }
-    .robot {
-      margin-top: 20px;
-      width: 80px;
-      animation: bob 2s infinite ease-in-out;
+    .toolbar button {
+      flex:1;
+      padding:10px;
+      background:transparent;
+      border:2px solid #0f0;
+      color:#0f0;
+      cursor:pointer;
+      animation:btnflicker 2s infinite;
+    }
+    @keyframes btnflicker {
+      0%,100% {box-shadow:0 0 5px #0f0;}
+      50% {box-shadow:0 0 15px #0f0;}
+    }
+    .btn-connect:hover {background:#0f0;color:#000;}
+    .tab-content {display:none;}
+    .tab-content.active{display:block;}
+    .tabs{display:flex;gap:5px;}
+    .tabs div {
+      flex:1;text-align:center;
+      padding:10px;border:2px solid #0f0;
+      background:#001600;cursor:pointer;
+    }
+    .tabs .active{background:#003200;}
+    #robot {
+      position:fixed;
+      bottom:0;left:0;
+      width:200px;
+      opacity:0.8;
+      animation:bob 3s infinite ease-in-out;
+      pointer-events:none;
     }
     @keyframes bob {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      0%,100%{transform:translateY(0);}
+      50%{transform:translateY(-10px);}
     }
-    .tabs {
-      margin-top: 20px;
-      width: 100%;
-      display: flex;
+    .popup {
+      position:fixed;
+      top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      background:#000;
+      border:2px solid #0f0;
+      padding:20px;
+      display:none;
+      z-index:2;
     }
-    .tab {
-      flex: 1;
-      padding: 10px;
-      border: 2px solid #0f0;
-      text-align: center;
-      cursor: pointer;
-      background: #001600;
+    .popup.active{display:block;}
+    .popup input {background:#001600;color:#0f0;border:1px solid #0f0;padding:5px;width:200px;}
+    .popup button {margin-top:10px;}
+    .overlay {
+      position:fixed;top:0;left:0;
+      width:100%;height:100%;
+      background:rgba(0,0,0,0.7);
+      display:none;
+      z-index:1;
     }
-    .tab.active {
-      background: #003200;
-    }
-    .tab-content {
-      border: 2px solid #0f0;
-      padding: 15px;
-      margin-top: -2px;
-      width: 100%;
-      min-height: 150px;
-      background: #000;
-    }
-    .hidden { display: none; }
-    a {
-      color: #0f0;
-      text-decoration: none;
-    }
+    .overlay.active{display:block;}
   </style>
 </head>
 <body>
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="walletPopup">
+    <p>Connect your Telegram / Web3 wallet:</p>
+    <input type="text" placeholder="Paste wallet or bot link...">
+    <button id="walletOk">Connect</button>
+  </div>
+
   <div class="container">
     <h1>VXcoin Hacker Dashboard</h1>
-    <div class="stats">
-      <div class="box" id="coinsBox">Coins: <span id="coins">0</span></div>
-      <div class="box" id="usdBox">≈ $<span id="usd">0.00</span></div>
-    </div>
-    <div class="stats">
-      <div class="box">Referrals: <span id="refs">0</span></div>
-      <div class="box">Days Left: <span id="daysLeft">145</span></div>
+
+    <div class="stats-grid">
+      <div class="stat-box">🪙 Coins<br><span id="coins">0</span></div>
+      <div class="stat-box">💵 USD<br>$<span id="usd">0.00</span></div>
+      <div class="stat-box">🔗 Referrals<br><span id="refs">0</span></div>
+      <div class="stat-box">⏳ Days Left<br><span id="days">145</span></div>
+      <div class="stat-box">📈 Rate<br><span id="rate">0.00</span> $/day</div>
+      <div class="stat-box">⏱ Last Claim<br><span id="lastClaim">Never</span></div>
     </div>
 
     <div class="tabs">
-      <div class="tab active" data-tab="main">Main</div>
-      <div class="tab" data-tab="tasks">Tasks</div>
+      <div class="active" data-tab="mainTab">Main</div>
+      <div data-tab="tasksTab">Tasks</div>
+      <div data-tab="codeTab">Console</div>
     </div>
 
-    <div class="tab-content" id="main">
-      <p>Invite people via your link:</p>
+    <div id="mainTab" class="tab-content active">
+      <div class="toolbar">
+        <button id="connectBtn" class="btn-connect">Connect Wallet</button>
+        <button id="claimBtn">Claim VXcoin</button>
+        <button id="refBtn">Copy Referral Link</button>
+      </div>
+      <p>Your referral link:</p>
       <input type="text" id="refLink" readonly style="width:100%;padding:5px;background:#001600;color:#0f0;border:1px solid #0f0;">
-      <button id="claimBtn">Claim VXcoin</button>
+      <p>Price per coin ≈ $0.25</p>
     </div>
 
-    <div class="tab-content hidden" id="tasks">
-      <p>Tasks:</p>
+    <div id="tasksTab" class="tab-content">
+      <p><strong>Tasks to earn coins:</strong></p>
       <ul>
-        <li>Subscribe on Telegram – <button class="taskBtn">Go</button></li>
-        <!-- Добавляй сюда задачи -->
+        <li>Subscribe to Telegram – <button class="taskBtn">Go</button></li>
+        <li>Join Discord – <button class="taskBtn">Go</button></li>
+        <li>Follow on Twitter – <button class="taskBtn">Go</button></li>
       </ul>
     </div>
 
-    <img src="https://via.placeholder.com/80x80.png?text=🤖" alt="robot" class="robot">
-
+    <div id="codeTab" class="tab-content">
+      <div class="code-console" id="console">
+        <div class="matrix-line">[INIT] VXcoin dashboard loaded...</div>
+      </div>
+    </div>
   </div>
 
+  <img src="https://i.imgur.com/XLDX2jQ.png" alt="hacker robot" id="robot">
+
   <script>
-    const coinsEl = document.getElementById('coins');
-    const usdEl = document.getElementById('usd');
-    const refsEl = document.getElementById('refs');
-    const daysLeftEl = document.getElementById('daysLeft');
-    const refLinkEl = document.getElementById('refLink');
-    const claimBtn = document.getElementById('claimBtn');
-    const tabs = document.querySelectorAll('.tab');
-    const contents = document.querySelectorAll('.tab-content');
+    const coinsEl=document.getElementById('coins');
+    const usdEl=document.getElementById('usd');
+    const refsEl=document.getElementById('refs');
+    const daysEl=document.getElementById('days');
+    const rateEl=document.getElementById('rate');
+    const lastClaimEl=document.getElementById('lastClaim');
+    const refLinkEl=document.getElementById('refLink');
+    const consoleEl=document.getElementById('console');
 
-    let coins = 0;
-    let refs = 0;
-    let daysLeft = 145;
-    const COIN_PRICE = 0.25;
+    let coins=0, refs=0, days=145;
+    const COIN_PRICE=0.25;
 
-    // Генерация реферальной ссылки
-    refLinkEl.value = window.location.href + '?ref=YOUR_ID';
+    refLinkEl.value=window.location.href+'?ref=YOUR_ID';
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t=>t.classList.remove('active'));
-        contents.forEach(c=>c.classList.add('hidden'));
+    document.querySelectorAll('.tabs div').forEach(tab=>{
+      tab.onclick=()=>{
+        document.querySelectorAll('.tabs div').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
         tab.classList.add('active');
-        document.getElementById(tab.dataset.tab).classList.remove('hidden');
-      });
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      };
     });
 
-    claimBtn.addEventListener('click', () => {
-      // Здесь вызов UI кошелька
-      alert('Connect your Telegram wallet (placeholder)');
-    });
-
-    function updateStats() {
-      coins = refs; // 1 монета за реф
-      let usd = (coins * COIN_PRICE).toFixed(2);
-      coinsEl.textContent = coins;
-      refsEl.textContent = refs;
-      usdEl.textContent = usd;
-      daysLeftEl.textContent = daysLeft;
+    function logConsole(msg) {
+      const el=document.createElement('div');
+      el.textContent='[LOG] '+msg;
+      el.className='matrix-line';
+      consoleEl.appendChild(el);
+      consoleEl.scrollTop=consoleEl.scrollHeight;
     }
 
-    // Симуляция роста людей
-    setInterval(() => {
-      refs += Math.random() < 0.1 ? 1 : 0;
+    document.getElementById('connectBtn').onclick=()=>{
+      document.getElementById('overlay').classList.add('active');
+      document.getElementById('walletPopup').classList.add('active');
+    };
+    document.getElementById('walletOk').onclick=()=>{
+      document.getElementById('overlay').classList.remove('active');
+      document.getElementById('walletPopup').classList.remove('active');
+      logConsole('Wallet connected');
+      lastClaimEl.textContent=new Date().toLocaleTimeString();
+    };
+    document.getElementById('refBtn').onclick=()=>{
+      refLinkEl.select();
+      document.execCommand('copy');
+      logConsole('Referral link copied');
+    };
+    document.getElementById('claimBtn').onclick=()=>{
+      coins+=1;
+      refs+=1;
+      days = Math.max(0, days-0);
       updateStats();
-    }, 3000);
+      logConsole('Coin claimed (from ref or bot)');
+    };
 
-    // Таймер в днях
-    setInterval(() => {
-      if (daysLeft > 0) { daysLeft--; updateStats(); }
-    }, 10000);
+    function updateStats(){
+      coinsEl.textContent=coins;
+      refsEl.textContent=refs;
+      daysEl.textContent=days;
+      usdEl.textContent=(coins*COIN_PRICE).toFixed(2);
+      rateEl.textContent=(coins/days).toFixed(2);
+    }
+
+    setInterval(()=>{
+      if(Math.random()<0.2){ document.getElementById('claimBtn').click(); }
+    },5000);
 
     updateStats();
+    logConsole('System ready.');
   </script>
 </body>
 </html>
